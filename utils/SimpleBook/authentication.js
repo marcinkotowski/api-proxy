@@ -3,7 +3,7 @@ const axios = require("axios");
 async function Authentication() {
   try {
     const res = await axios.post(
-      "https://user-api-v2.simplybook.me/admin/auth",
+      `${process.env.SIMPLEBOOK_API_URL}/admin/auth`,
       {
         company: process.env.COMPANY,
         login: process.env.LOGIN,
