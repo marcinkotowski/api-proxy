@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { refreshToken } = require("./refreshToken.js");
 
 async function bookingDetails(bookingId, Tokens) {
   try {
@@ -16,6 +17,12 @@ async function bookingDetails(bookingId, Tokens) {
 
     return res.data;
   } catch (error) {
+    if (error.response?.data?.code === 419) {
+      const refreshTokens = await refreshToken(Tokens);
+      Tokens.accessToken = refreshTokens.token;
+      Tokens.refreshToken = refreshTokens.refresh_token;
+      return bookingDetails(bookingId, Tokens);
+    }
     throw new Error("Get booking details failed: " + error.message);
   }
 }
