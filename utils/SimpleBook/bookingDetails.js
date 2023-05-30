@@ -7,7 +7,7 @@ async function bookingDetails(bookingId, Tokens) {
       `${process.env.SIMPLEBOOK_API_URL}/admin/bookings/${bookingId}`,
       {
         headers: {
-          "X-Company-Login": process.env.COMPANY,
+          "X-Company-Login": process.env.SIMPLEBOOK_COMPANY,
           "X-Token": Tokens.accessToken,
         },
       }

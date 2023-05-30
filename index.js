@@ -1,8 +1,9 @@
 const express = require("express");
 const helmet = require("helmet");
-const { Authentication } = require("./utils/SimpleBook/authentication.js");
+const { authenticationSB } = require("./utils/SimpleBook/authenticationSB.js");
+const { authenticationTTL } = require("./utils/TTLock/authenticationTTL.js");
 const { bookingDetails } = require("./utils/SimpleBook/bookingDetails.js");
-require("dotenv").config({ override: true });
+require("dotenv").config();
 
 const PORT = process.env.PORT || 8080;
 const app = express();
@@ -10,7 +11,12 @@ const app = express();
 app.use(express.json());
 app.use(helmet());
 
-const SimpleBookTokens = {
+const tokensSB = {
+  accessToken: null,
+  refreshToken: null,
+};
+
+const tokensTTL = {
   accessToken: null,
   refreshToken: null,
 };
@@ -22,11 +28,11 @@ app.post("/generate-passcode", async (req, res) => {
 
     const { startUnixTime, endUnixTime, clientEmail } = await bookingDetails(
       bookingId,
-      SimpleBookTokens
+      tokensSB
     );
 
     console.log(startUnixTime, endUnixTime, clientEmail);
-    console.log(SimpleBookTokens.accessToken, SimpleBookTokens.refreshToken);
+    console.log(tokensSB.accessToken, tokensSB.refreshToken);
 
     res.sendStatus(200);
   } catch (error) {
@@ -37,10 +43,16 @@ app.post("/generate-passcode", async (req, res) => {
 
 async function startServer() {
   try {
-    const authData = await Authentication();
-    SimpleBookTokens.accessToken = authData.token;
-    SimpleBookTokens.refreshToken = authData.refresh_token;
-    console.log(SimpleBookTokens.accessToken, SimpleBookTokens.refreshToken);
+    const authDataSB = await authenticationSB();
+    tokensSB.accessToken = authDataSB.token;
+    tokensSB.refreshToken = authDataSB.refresh_token;
+
+    const authDataTTL = await authenticationTTL();
+    tokensTTL.accessToken = authDataTTL.access_token;
+    tokensTTL.refreshToken = authDataTTL.refresh_token;
+
+    console.log(tokensSB.accessToken, tokensSB.refreshToken);
+    console.log(tokensTTL.accessToken, tokensTTL.refreshToken);
 
     app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
   } catch (error) {
