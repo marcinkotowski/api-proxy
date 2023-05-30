@@ -20,13 +20,12 @@ app.post("/generate-passcode", async (req, res) => {
     const { booking_id: bookingId } = req.body;
     if (!bookingId) return res.status(400).json("Invalid callback");
 
-    const {
-      start_datetime: startDateTime,
-      end_datetime: endDateTime,
-      client: { email: clientEmail },
-    } = await bookingDetails(bookingId, SimpleBookTokens);
+    const { startUnixTime, endUnixTime, clientEmail } = await bookingDetails(
+      bookingId,
+      SimpleBookTokens
+    );
 
-    console.log(startDateTime, endDateTime, clientEmail);
+    console.log(startUnixTime, endUnixTime, clientEmail);
     console.log(SimpleBookTokens.accessToken, SimpleBookTokens.refreshToken);
 
     res.sendStatus(200);
