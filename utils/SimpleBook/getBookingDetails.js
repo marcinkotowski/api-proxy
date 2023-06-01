@@ -1,7 +1,7 @@
 const axios = require("axios");
 const { refreshToken } = require("./refreshToken.js");
 
-async function bookingDetails(bookingId, Tokens) {
+async function getBookingDetails(bookingId, Tokens) {
   try {
     const res = await axios.get(
       `${process.env.SIMPLEBOOK_API_URL}/admin/bookings/${bookingId}`,
@@ -29,10 +29,10 @@ async function bookingDetails(bookingId, Tokens) {
       const refreshTokens = await refreshToken(Tokens);
       Tokens.accessToken = refreshTokens.token;
       Tokens.refreshToken = refreshTokens.refresh_token;
-      return bookingDetails(bookingId, Tokens);
+      return getBookingDetails(bookingId, Tokens);
     }
     throw new Error("Get booking details failed: " + error.message);
   }
 }
 
-module.exports = { bookingDetails };
+module.exports = { getBookingDetails };

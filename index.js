@@ -1,8 +1,11 @@
 const express = require("express");
 const helmet = require("helmet");
 const { authenticationSB } = require("./utils/SimpleBook/authenticationSB.js");
-const { authenticationTTL } = require("./utils/TTLock/authenticationTTL.js");
-const { bookingDetails } = require("./utils/SimpleBook/bookingDetails.js");
+const {
+  getBookingDetails,
+} = require("./utils/SimpleBook/getBookingDetails.js");
+const { generatePasscode } = require("./utils/TTLock/generatePasscode.js");
+const { addCustomPasscode } = require("./utils/TTLock/addCustomPasscode.js");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 8080;
@@ -16,23 +19,27 @@ const tokensSB = {
   refreshToken: null,
 };
 
-const tokensTTL = {
-  accessToken: null,
-  refreshToken: null,
-};
-
 app.post("/generate-passcode", async (req, res) => {
   try {
-    const { booking_id: bookingId } = req.body;
-    if (!bookingId) return res.status(400).json("Invalid callback");
+    // const { booking_id: bookingId } = req.body;
+    // if (!bookingId) return res.status(400).json("Invalid callback");
 
-    const { startUnixTime, endUnixTime, clientEmail } = await bookingDetails(
-      bookingId,
+    const { startUnixTime, endUnixTime, clientEmail } = await getBookingDetails(
+      10,
       tokensSB
     );
+    // console.log(startUnixTime, endUnixTime, clientEmail);
+    // Tokens may have been refreshed
+    // console.log(tokensSB.accessToken, tokensSB.refreshToken);
 
-    console.log(startUnixTime, endUnixTime, clientEmail);
-    console.log(tokensSB.accessToken, tokensSB.refreshToken);
+    const passcode = await generatePasscode();
+
+    const { keyboardPwdId } = await addCustomPasscode(
+      startUnixTime,
+      endUnixTime,
+      passcode
+    );
+    // console.log(passcode, keyboardPwdId);
 
     res.sendStatus(200);
   } catch (error) {
@@ -46,13 +53,7 @@ async function startServer() {
     const authDataSB = await authenticationSB();
     tokensSB.accessToken = authDataSB.token;
     tokensSB.refreshToken = authDataSB.refresh_token;
-
-    const authDataTTL = await authenticationTTL();
-    tokensTTL.accessToken = authDataTTL.access_token;
-    tokensTTL.refreshToken = authDataTTL.refresh_token;
-
     console.log(tokensSB.accessToken, tokensSB.refreshToken);
-    console.log(tokensTTL.accessToken, tokensTTL.refreshToken);
 
     app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
   } catch (error) {
