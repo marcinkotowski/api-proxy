@@ -6,6 +6,7 @@ const {
 } = require("./utils/SimpleBook/getBookingDetails.js");
 const { generatePasscode } = require("./utils/TTLock/generatePasscode.js");
 const { addCustomPasscode } = require("./utils/TTLock/addCustomPasscode.js");
+const { sendMail } = require("./utils/sendMail.js");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 8080;
@@ -40,6 +41,8 @@ app.post("/generate-passcode", async (req, res) => {
       passcode
     );
     // console.log(passcode, keyboardPwdId);
+
+    await sendMail(clientEmail);
 
     res.sendStatus(200);
   } catch (error) {

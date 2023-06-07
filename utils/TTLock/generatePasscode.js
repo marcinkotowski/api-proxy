@@ -3,7 +3,7 @@ const crypto = require("crypto");
 async function generatePasscode() {
   try {
     let passcode = "";
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 8; i++) {
       const digit = crypto.randomInt(0, 10);
       passcode += digit.toString();
     }
