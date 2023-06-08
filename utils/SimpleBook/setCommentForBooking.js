@@ -1,11 +1,11 @@
 const axios = require("axios");
 const { refreshToken } = require("./refreshToken.js");
 
-async function setCommentForBooking(bookingId, tokens, passcodeId) {
+async function setCommentForBooking(bookingId, tokens, passcodeData) {
   try {
     const res = await axios.put(
       `${process.env.SIMPLEBOOK_API_URL}/admin/bookings/${bookingId}/comment`,
-      { comment: passcodeId },
+      { comment: JSON.stringify(passcodeData) },
       {
         headers: {
           "X-Company-Login": process.env.SIMPLEBOOK_COMPANY,

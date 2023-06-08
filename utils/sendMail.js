@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-async function sendMail() {
+async function sendMail(clientEmail, keyboardPwd) {
   try {
     const transporter = await nodemailer.createTransport({
       service: "gmail",
@@ -12,9 +12,29 @@ async function sendMail() {
 
     const mailOptions = {
       from: process.env.GMAIL_ADDRESS,
-      to: process.env.GMAIL_ADDRESS,
-      subject: "Generated passcode",
-      text: "0123456",
+      to: clientEmail,
+      subject: "Passcode",
+      html: `
+      <html>
+        <head>
+          <style>
+          h1 {
+            margin-bottom: 5px;
+          }
+          h2 {
+            margin-top: 0px;
+            color: #f71a63;
+            font-size: 2.125rem;
+          }
+          </style>
+        </head>
+        <body>
+          <h1>Your access code is:</h1>
+          <div></div>
+          <h2>${keyboardPwd}</h2>
+        </body>
+      </html>
+      `,
     };
 
     await transporter.sendMail(mailOptions);

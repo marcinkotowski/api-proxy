@@ -10,6 +10,9 @@ const { sendMail } = require("./utils/sendMail.js");
 const {
   setCommentForBooking,
 } = require("./utils/SimpleBook/setCommentForBooking.js");
+const {
+  changePasscodeDetails,
+} = require("./utils/TTLock/changePasscodeDetails.js");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 8080;
@@ -45,13 +48,25 @@ app.post("/generate-passcode", async (req, res) => {
         keyboardPwd
       );
 
-      await setCommentForBooking(10, tokensSB, keyboardPwdId);
+      const passcodeData = {
+        keyboardPwdId,
+        keyboardPwd,
+      };
 
-      await sendMail(clientEmail);
+      await setCommentForBooking(10, tokensSB, passcodeData);
 
-      res.sendStatus(200);
+      await sendMail(clientEmail, keyboardPwd);
     } else if (notificationType === "change") {
+      const { startUnixTime, endUnixTime, clientEmail, comment } =
+        await getBookingDetails(10, tokensSB);
+
+      const { keyboardPwdId, keyboardPwd } = JSON.parse(comment);
+
+      await changePasscodeDetails(startUnixTime, endUnixTime, keyboardPwdId);
+
+      await sendMail(clientEmail, keyboardPwd);
     }
+    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     res.status(500).json(error);

@@ -17,13 +17,14 @@ async function getBookingDetails(bookingId, Tokens) {
       start_datetime: startDateTime,
       end_datetime: endDateTime,
       client: { email: clientEmail },
+      comment,
     } = res.data;
 
     // Convert 'YYYY-MM-DD HH:mm:ss' to UNIX Time
     const startUnixTime = new Date(startDateTime).getTime();
     const endUnixTime = new Date(endDateTime).getTime();
 
-    return { startUnixTime, endUnixTime, clientEmail };
+    return { startUnixTime, endUnixTime, clientEmail, comment };
   } catch (error) {
     if (error.response?.data?.code === 419) {
       const refreshTokens = await refreshToken(Tokens);
