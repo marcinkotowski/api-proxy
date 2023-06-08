@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-async function addCustomPasscode(startUnixTime, endUnixTime, passcode) {
+async function postCustomPasscode(startUnixTime, endUnixTime, passcode) {
   try {
     const res = await axios.post(
       `${process.env.TTLOCK_API_URL}/v3/keyboardPwd/add`,
@@ -22,8 +22,8 @@ async function addCustomPasscode(startUnixTime, endUnixTime, passcode) {
     console.log(res.data);
     return res.data;
   } catch (error) {
-    throw new Error("addCustomPasscode failed: " + error.message);
+    throw new Error("Post custom passcode failed: " + error.message);
   }
 }
 
-module.exports = { addCustomPasscode };
+module.exports = { postCustomPasscode };

@@ -5,8 +5,11 @@ const {
   getBookingDetails,
 } = require("./utils/SimpleBook/getBookingDetails.js");
 const { generatePasscode } = require("./utils/TTLock/generatePasscode.js");
-const { addCustomPasscode } = require("./utils/TTLock/addCustomPasscode.js");
+const { postCustomPasscode } = require("./utils/TTLock/postCustomPasscode.js");
 const { sendMail } = require("./utils/sendMail.js");
+const {
+  setCommentForBooking,
+} = require("./utils/SimpleBook/setCommentForBooking.js");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 8080;
@@ -22,29 +25,33 @@ const tokensSB = {
 
 app.post("/generate-passcode", async (req, res) => {
   try {
-    // const { booking_id: bookingId } = req.body;
-    // if (!bookingId) return res.status(400).json("Invalid callback");
+    const { booking_id: bookingId, notification_type: notificationType } =
+      req.body;
+    if ((!bookingId, !notificationType))
+      return res.status(400).json("Invalid callback");
 
-    const { startUnixTime, endUnixTime, clientEmail } = await getBookingDetails(
-      10,
-      tokensSB
-    );
-    // console.log(startUnixTime, endUnixTime, clientEmail);
-    // Tokens may have been refreshed
-    // console.log(tokensSB.accessToken, tokensSB.refreshToken);
+    if (notificationType === "create") {
+      const { startUnixTime, endUnixTime, clientEmail } =
+        await getBookingDetails(10, tokensSB);
+      // console.log(startUnixTime, endUnixTime, clientEmail);
+      // Tokens may have been refreshed
+      // console.log(tokensSB.accessToken, tokensSB.refreshToken);
 
-    const passcode = await generatePasscode();
+      const keyboardPwd = await generatePasscode();
 
-    const { keyboardPwdId } = await addCustomPasscode(
-      startUnixTime,
-      endUnixTime,
-      passcode
-    );
-    // console.log(passcode, keyboardPwdId);
+      const { keyboardPwdId } = await postCustomPasscode(
+        startUnixTime,
+        endUnixTime,
+        keyboardPwd
+      );
 
-    await sendMail(clientEmail);
+      await setCommentForBooking(10, tokensSB, keyboardPwdId);
 
-    res.sendStatus(200);
+      await sendMail(clientEmail);
+
+      res.sendStatus(200);
+    } else if (notificationType === "change") {
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json(error);
