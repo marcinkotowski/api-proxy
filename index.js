@@ -13,6 +13,7 @@ const {
 const {
   changePasscodeDetails,
 } = require("./utils/TTLock/changePasscodeDetails.js");
+const { deletePasscode } = require("./utils/TTLock/deletePasscode.js");
 require("dotenv").config();
 
 const PORT = process.env.PORT || 8080;
@@ -65,6 +66,10 @@ app.post("/generate-passcode", async (req, res) => {
       await changePasscodeDetails(startUnixTime, endUnixTime, keyboardPwdId);
 
       await sendMail(clientEmail, keyboardPwd);
+    } else if (notificationType === "delete") {
+      const { comment } = await getBookingDetails(10, tokensSB);
+      const { keyboardPwdId } = JSON.parse(comment);
+      await deletePasscode(keyboardPwdId);
     }
     res.sendStatus(200);
   } catch (error) {
