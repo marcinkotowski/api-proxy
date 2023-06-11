@@ -39,7 +39,7 @@ async function sendMail(clientEmail, keyboardPwd) {
 
     await transporter.sendMail(mailOptions);
   } catch (error) {
-    throw new Error("Send mail failed: " + error.message);
+    throw new Error("Send mail failed: " + error);
   }
 }
 

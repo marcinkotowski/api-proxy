@@ -22,7 +22,7 @@ async function postCustomPasscode(startUnixTime, endUnixTime, keyboardPwd) {
     console.log(res.data);
     return res.data;
   } catch (error) {
-    throw new Error("Post custom passcode failed: " + error.message);
+    throw new Error("Post custom passcode failed: " + error);
   }
 }
 
