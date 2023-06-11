@@ -31,15 +31,13 @@ app.post("/generate-passcode", async (req, res) => {
   try {
     const { booking_id: bookingId, notification_type: notificationType } =
       req.body;
+
     if ((!bookingId, !notificationType))
       return res.status(400).json("Invalid callback");
 
     if (notificationType === "create") {
       const { startUnixTime, endUnixTime, clientEmail } =
-        await getBookingDetails(10, tokensSB);
-      // console.log(startUnixTime, endUnixTime, clientEmail);
-      // Tokens may have been refreshed
-      // console.log(tokensSB.accessToken, tokensSB.refreshToken);
+        await getBookingDetails(bookingId, tokensSB);
 
       const keyboardPwd = await generatePasscode();
 
@@ -54,24 +52,35 @@ app.post("/generate-passcode", async (req, res) => {
         keyboardPwd,
       };
 
-      await setCommentForBooking(10, tokensSB, passcodeData);
+      await setCommentForBooking(bookingId, tokensSB, passcodeData);
 
       await sendMail(clientEmail, keyboardPwd);
+
+      return res
+        .status(200)
+        .json("Passcode generated and email sent successfully");
     } else if (notificationType === "change") {
       const { startUnixTime, endUnixTime, clientEmail, comment } =
-        await getBookingDetails(10, tokensSB);
+        await getBookingDetails(bookingId, tokensSB);
 
       const { keyboardPwdId, keyboardPwd } = JSON.parse(comment);
 
       await changePasscodeDetails(startUnixTime, endUnixTime, keyboardPwdId);
 
       await sendMail(clientEmail, keyboardPwd);
-    } else if (notificationType === "delete") {
-      const { comment } = await getBookingDetails(10, tokensSB);
+
+      return res
+        .status(200)
+        .json("Updated passcode details and email sent successfully");
+    } else if (notificationType === "cancel") {
+      const { comment } = await getBookingDetails(bookingId, tokensSB);
       const { keyboardPwdId } = JSON.parse(comment);
       await deletePasscode(keyboardPwdId);
+
+      return res.status(200).json("Passcode deleted successfully");
+    } else {
+      return res.status(422).json("Invalid value for notification");
     }
-    res.sendStatus(200);
   } catch (error) {
     console.error(error);
     res.status(500).json(error);
