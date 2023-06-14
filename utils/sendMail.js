@@ -2,16 +2,18 @@ const nodemailer = require("nodemailer");
 
 async function sendMail(clientEmail, keyboardPwd) {
   try {
-    const transporter = await nodemailer.createTransport({
-      service: "gmail",
+    let transporter = nodemailer.createTransport({
+      host: process.env.MAIL_HOST,
+      port: 465,
+      secure: true,
       auth: {
-        user: process.env.GMAIL_ADDRESS,
-        pass: process.env.GMAIL_APP_PASSWORD,
+        user: process.env.MAIL_ADDRESS,
+        pass: process.env.MAIL_PASSWORD,
       },
     });
 
     const mailOptions = {
-      from: process.env.GMAIL_ADDRESS,
+      from: process.env.MAIL_ADDRESS,
       to: clientEmail,
       subject: "Passcode",
       html: `

@@ -20,7 +20,7 @@ async function setCommentForBooking(bookingId, tokens, passcodeData) {
       const refreshTokens = await refreshToken(tokens);
       tokens.accessToken = refreshTokens.token;
       tokens.refreshToken = refreshTokens.refresh_token;
-      return setCommentForBooking(bookingId, tokens, bookingData);
+      return setCommentForBooking(bookingId, tokens, passcodeData);
     }
     throw new Error("Set comment for booking failed: " + error.message);
   }
