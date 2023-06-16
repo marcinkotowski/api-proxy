@@ -56,6 +56,10 @@ app.post("/generate-passcode", async (req, res) => {
 
       await sendMail(clientEmail, keyboardPwd);
 
+      console.log(
+        `[CREATE] Passcode ${keyboardPwd} has been sent to ${clientEmail}`
+      );
+
       return res
         .status(200)
         .json("Passcode generated and email sent successfully");
@@ -69,13 +73,19 @@ app.post("/generate-passcode", async (req, res) => {
 
       await sendMail(clientEmail, keyboardPwd);
 
+      console.log(
+        `[CHANGE] Passcode ${keyboardPwd} has been sent to ${clientEmail}`
+      );
+
       return res
         .status(200)
         .json("Updated passcode details and email sent successfully");
     } else if (notificationType === "cancel") {
       const { comment } = await getBookingDetails(bookingId, tokensSB);
-      const { keyboardPwdId } = JSON.parse(comment);
+      const { keyboardPwd, keyboardPwdId } = JSON.parse(comment);
       await deletePasscode(keyboardPwdId);
+
+      console.log(`[CANCEL] Passcode ${keyboardPwd} has been deleted`);
 
       return res.status(200).json("Passcode deleted successfully");
     } else {
@@ -92,7 +102,6 @@ async function startServer() {
     const authDataSB = await authenticationSB();
     tokensSB.accessToken = authDataSB.token;
     tokensSB.refreshToken = authDataSB.refresh_token;
-    console.log(tokensSB.accessToken, tokensSB.refreshToken);
 
     app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
   } catch (error) {
