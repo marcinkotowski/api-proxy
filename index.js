@@ -44,7 +44,8 @@ app.post("/generate-passcode", async (req, res) => {
       const { keyboardPwdId } = await postCustomPasscode(
         startUnixTime,
         endUnixTime,
-        keyboardPwd
+        keyboardPwd,
+        clientEmail
       );
 
       const passcodeData = {
@@ -69,7 +70,12 @@ app.post("/generate-passcode", async (req, res) => {
 
       const { keyboardPwdId, keyboardPwd } = JSON.parse(comment);
 
-      await changePasscodeDetails(startUnixTime, endUnixTime, keyboardPwdId);
+      await changePasscodeDetails(
+        startUnixTime,
+        endUnixTime,
+        keyboardPwdId,
+        clientEmail
+      );
 
       await sendMail(clientEmail, keyboardPwd);
 

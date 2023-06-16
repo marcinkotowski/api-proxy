@@ -1,6 +1,11 @@
 const axios = require("axios");
 
-async function postCustomPasscode(startUnixTime, endUnixTime, keyboardPwd) {
+async function postCustomPasscode(
+  startUnixTime,
+  endUnixTime,
+  keyboardPwd,
+  clientEmail
+) {
   try {
     const res = await axios.post(
       `${process.env.TTLOCK_API_URL}/v3/keyboardPwd/add`,
@@ -9,6 +14,7 @@ async function postCustomPasscode(startUnixTime, endUnixTime, keyboardPwd) {
         accessToken: process.env.TTLOCK_ACCESS_TOKEN,
         lockId: process.env.TTLOCK_LOCK_ID,
         keyboardPwd,
+        keyboardPwdName: clientEmail,
         startDate: startUnixTime,
         endDate: endUnixTime,
         addType: 2,

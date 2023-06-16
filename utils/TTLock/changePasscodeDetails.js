@@ -3,7 +3,8 @@ const axios = require("axios");
 async function changePasscodeDetails(
   startUnixTime,
   endUnixTime,
-  keyboardPwdId
+  keyboardPwdId,
+  clientEmail
 ) {
   try {
     const res = await axios.post(
@@ -13,6 +14,7 @@ async function changePasscodeDetails(
         accessToken: process.env.TTLOCK_ACCESS_TOKEN,
         lockId: process.env.TTLOCK_LOCK_ID,
         keyboardPwdId,
+        keyboardPwdName: clientEmail,
         startDate: startUnixTime,
         endDate: endUnixTime,
         deleteType: 2,
