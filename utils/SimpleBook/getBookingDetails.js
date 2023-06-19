@@ -1,4 +1,5 @@
 const axios = require("axios");
+const moment = require("moment-timezone");
 const { refreshToken } = require("./refreshToken.js");
 
 async function getBookingDetails(bookingId, Tokens) {
@@ -21,8 +22,10 @@ async function getBookingDetails(bookingId, Tokens) {
     } = res.data;
 
     // Convert 'YYYY-MM-DD HH:mm:ss' to UNIX Time
-    const startUnixTime = new Date(startDateTime).getTime();
-    const endUnixTime = new Date(endDateTime).getTime();
+    const startUnixTime = moment
+      .tz(startDateTime, process.env.TIMEZONE)
+      .valueOf();
+    const endUnixTime = moment.tz(endDateTime, process.env.TIMEZONE).valueOf();
 
     return { startUnixTime, endUnixTime, clientEmail, comment };
   } catch (error) {

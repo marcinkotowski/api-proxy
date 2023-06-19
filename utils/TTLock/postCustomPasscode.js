@@ -1,4 +1,5 @@
 const axios = require("axios");
+const moment = require("moment-timezone");
 
 async function postCustomPasscode(
   startUnixTime,
@@ -18,7 +19,7 @@ async function postCustomPasscode(
         startDate: startUnixTime,
         endDate: endUnixTime,
         addType: 2,
-        date: new Date().getTime(),
+        date: moment().tz(process.env.TIMEZONE).valueOf(),
       },
       {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
