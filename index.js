@@ -1,6 +1,11 @@
 const express = require("express");
 const helmet = require("helmet");
-const { authenticationSB } = require("./utils/SimpleBook/authenticationSB.js");
+const {
+  authenticationSB,
+} = require("./utils/SimpleBook/auth/authenticationSB.js");
+const {
+  authenticationTTL,
+} = require("./utils/TTLock/auth/authenticationTTL.js");
 const {
   getBookingDetails,
 } = require("./utils/SimpleBook/getBookingDetails.js");
@@ -27,6 +32,11 @@ const tokensSB = {
   refreshToken: null,
 };
 
+const tokensTTL = {
+  accessToken: null,
+  refreshToken: null,
+};
+
 app.post("/generate-passcode", async (req, res) => {
   try {
     const { booking_id: bookingId, notification_type: notificationType } =
@@ -45,7 +55,8 @@ app.post("/generate-passcode", async (req, res) => {
         startUnixTime,
         endUnixTime,
         keyboardPwd,
-        clientEmail
+        clientEmail,
+        tokensTTL
       );
 
       const passcodeData = {
@@ -74,7 +85,8 @@ app.post("/generate-passcode", async (req, res) => {
         startUnixTime,
         endUnixTime,
         keyboardPwdId,
-        clientEmail
+        clientEmail,
+        tokensTTL
       );
 
       await sendMail(clientEmail, keyboardPwd);
@@ -89,7 +101,7 @@ app.post("/generate-passcode", async (req, res) => {
     } else if (notificationType === "cancel") {
       const { comment } = await getBookingDetails(bookingId, tokensSB);
       const { keyboardPwd, keyboardPwdId } = JSON.parse(comment);
-      await deletePasscode(keyboardPwdId);
+      await deletePasscode(keyboardPwdId, tokensTTL);
 
       console.log(`[CANCEL] Passcode ${keyboardPwd} has been deleted`);
 
@@ -108,6 +120,10 @@ async function startServer() {
     const authDataSB = await authenticationSB();
     tokensSB.accessToken = authDataSB.token;
     tokensSB.refreshToken = authDataSB.refresh_token;
+
+    const authDataTTL = await authenticationTTL();
+    tokensTTL.accessToken = authDataTTL.access_token;
+    tokensTTL.refreshToken = authDataTTL.refresh_token;
 
     app.listen(PORT, () => console.log(`Server listening on port ${PORT}`));
   } catch (error) {

@@ -1,6 +1,6 @@
 const axios = require("axios");
 const moment = require("moment-timezone");
-const { refreshToken } = require("./refreshToken.js");
+const { refreshTokenSB } = require("./auth/refreshTokenSB.js");
 
 async function getBookingDetails(bookingId, Tokens) {
   try {
@@ -30,12 +30,17 @@ async function getBookingDetails(bookingId, Tokens) {
     return { startUnixTime, endUnixTime, clientEmail, comment };
   } catch (error) {
     if (error.response?.data?.code === 419) {
-      const refreshTokens = await refreshToken(Tokens);
+      const refreshTokens = await refreshTokenSB(Tokens);
       Tokens.accessToken = refreshTokens.token;
       Tokens.refreshToken = refreshTokens.refresh_token;
       return getBookingDetails(bookingId, Tokens);
     }
-    throw new Error("Get booking details failed: " + error.message);
+
+    if (error.message) {
+      throw new Error("Get booking details failed: " + error.message);
+    } else {
+      throw new Error("Get booking details failed: " + error);
+    }
   }
 }
 

@@ -1,7 +1,7 @@
 const axios = require("axios");
-const { refreshToken } = require("./refreshToken.js");
+const { refreshTokenSB } = require("./auth/refreshTokenSB.js");
 
-async function setCommentForBooking(bookingId, tokens, passcodeData) {
+async function setCommentForBooking(bookingId, Tokens, passcodeData) {
   try {
     const res = await axios.put(
       `${process.env.SIMPLEBOOK_API_URL}/admin/bookings/${bookingId}/comment`,
@@ -9,7 +9,7 @@ async function setCommentForBooking(bookingId, tokens, passcodeData) {
       {
         headers: {
           "X-Company-Login": process.env.SIMPLEBOOK_COMPANY,
-          "X-Token": tokens.accessToken,
+          "X-Token": Tokens.accessToken,
         },
       }
     );
@@ -17,12 +17,17 @@ async function setCommentForBooking(bookingId, tokens, passcodeData) {
     return res.data;
   } catch (error) {
     if (error.response?.data?.code === 419) {
-      const refreshTokens = await refreshToken(tokens);
-      tokens.accessToken = refreshTokens.token;
-      tokens.refreshToken = refreshTokens.refresh_token;
-      return setCommentForBooking(bookingId, tokens, passcodeData);
+      const refreshTokens = await refreshTokenSB(Tokens);
+      Tokens.accessToken = refreshTokens.token;
+      Tokens.refreshToken = refreshTokens.refresh_token;
+      return setCommentForBooking(bookingId, Tokens, passcodeData);
     }
-    throw new Error("Set comment for booking failed: " + error.message);
+
+    if (error.message) {
+      throw new Error("Set comment for booking failed: " + error.message);
+    } else {
+      throw new Error("Set comment for booking failed: " + error);
+    }
   }
 }
 

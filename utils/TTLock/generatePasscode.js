@@ -10,7 +10,11 @@ async function generatePasscode() {
 
     return passcode;
   } catch (error) {
-    throw new Error("generatePasscode failed: " + error.message);
+    if (error.message) {
+      throw new Error("generatePasscode failed: " + error.message);
+    } else {
+      throw new Error("generatePasscode failed: " + error);
+    }
   }
 }
 
